@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors
+
 import 'package:ecommerce_supabse/provider/auth_provider.dart';
 import 'package:ecommerce_supabse/provider/category_provider.dart';
 import 'package:ecommerce_supabse/provider/dashboard_provider.dart';

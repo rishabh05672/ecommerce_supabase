@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:ecommerce_supabse/model/category_model.dart';
 import 'package:ecommerce_supabse/provider/category_provider.dart';
 import 'package:flutter/material.dart';

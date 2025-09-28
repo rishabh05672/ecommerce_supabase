@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, prefer_const_constructors_in_immutables
+
 import 'package:ecommerce_supabse/model/order_model.dart';
 import 'package:ecommerce_supabse/provider/order_provider.dart';
 import 'package:ecommerce_supabse/utils/constants/supabase_key.dart';

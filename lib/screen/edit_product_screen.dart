@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, curly_braces_in_flow_control_structures, unnecessary_to_list_in_spreads, sized_box_for_whitespace
+
 import 'package:ecommerce_supabse/model/product_model.dart';
 import 'package:ecommerce_supabse/provider/category_provider.dart';
 import 'package:ecommerce_supabse/provider/product_provider.dart';

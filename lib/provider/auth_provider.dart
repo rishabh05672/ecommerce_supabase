@@ -31,6 +31,63 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Admin Sign Up with role
+  Future<bool> signUp({
+    required String email,
+    required String password,
+    String? fullName,
+    String role = 'admin', // Default admin role
+  }) async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      // Step 1: Create user with Supabase Auth
+      final response = await _supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: fullName != null ? {'full_name': fullName} : null,
+      );
+
+      if (response.user != null) {
+        // Step 2: Insert admin data into users table
+        try {
+          await _supabase.from('users').insert({
+            'id': response.user!.id,
+            'email': email,
+            'full_name': fullName,
+            'role': role, // Set admin role
+            'created_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          });
+
+          print('Admin user inserted successfully');
+        } catch (insertError) {
+          print('Error inserting admin data: $insertError');
+          // Continue even if insert fails
+        }
+
+        _user = response.user;
+        await _saveUserSession();
+        notifyListeners();
+        return true;
+      }
+
+      _setError('Failed to create account');
+      return false;
+    } on AuthException catch (e) {
+      _setError(_getErrorMessage(e.message));
+      return false;
+    } catch (e) {
+      _setError('Registration failed. Please try again.');
+      print('Signup error: $e');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Admin Sign In
   Future<bool> signIn(String email, String password) async {
     try {
       _setLoading(true);
@@ -50,46 +107,10 @@ class AuthProvider with ChangeNotifier {
 
       return false;
     } on AuthException catch (e) {
-      _setError(e.message);
+      _setError(_getErrorMessage(e.message));
       return false;
     } catch (e) {
-      _setError('An unexpected error occurred');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<bool> signUp(String email, String password) async {
-    try {
-      _setLoading(true);
-      _clearError();
-
-      final response = await _supabase.auth.signUp(
-        email: email,
-        password: password,
-      );
-
-      if (response.user != null) {
-        // Insert user into users table
-        await _supabase.from('users').insert({
-          'id': response.user!.id,
-          'email': email,
-          'role': 'admin',
-        });
-
-        _user = response.user;
-        await _saveUserSession();
-        notifyListeners();
-        return true;
-      }
-
-      return false;
-    } on AuthException catch (e) {
-      _setError(e.message);
-      return false;
-    } catch (e) {
-      _setError('An unexpected error occurred');
+      _setError('Login failed. Please try again.');
       return false;
     } finally {
       _setLoading(false);
@@ -108,19 +129,27 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _saveUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(AppConstants.isLoggedInKey, true);
-    if (_user != null) {
-      await prefs.setString(AppConstants.userIdKey, _user!.id);
-      await prefs.setString(AppConstants.userEmailKey, _user!.email ?? '');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(AppConstants.isLoggedInKey, true);
+      if (_user != null) {
+        await prefs.setString(AppConstants.userIdKey, _user!.id);
+        await prefs.setString(AppConstants.userEmailKey, _user!.email ?? '');
+      }
+    } catch (e) {
+      print('Error saving session: $e');
     }
   }
 
   Future<void> _clearUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(AppConstants.isLoggedInKey);
-    await prefs.remove(AppConstants.userIdKey);
-    await prefs.remove(AppConstants.userEmailKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(AppConstants.isLoggedInKey);
+      await prefs.remove(AppConstants.userIdKey);
+      await prefs.remove(AppConstants.userEmailKey);
+    } catch (e) {
+      print('Error clearing session: $e');
+    }
   }
 
   void _setLoading(bool loading) {
@@ -135,10 +164,26 @@ class AuthProvider with ChangeNotifier {
 
   void _clearError() {
     _errorMessage = null;
-    notifyListeners();
   }
 
   void clearError() {
     _clearError();
+    notifyListeners();
+  }
+
+  String _getErrorMessage(String? error) {
+    if (error == null) return 'An unexpected error occurred';
+
+    if (error.contains('Invalid login credentials')) {
+      return 'Invalid email or password';
+    } else if (error.contains('User already registered')) {
+      return 'Account already exists with this email';
+    } else if (error.contains('Password should be at least')) {
+      return 'Password should be at least 6 characters';
+    } else if (error.contains('Unable to validate email address')) {
+      return 'Please enter a valid email address';
+    }
+
+    return error;
   }
 }

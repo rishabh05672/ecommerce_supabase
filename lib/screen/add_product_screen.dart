@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields, sized_box_for_whitespace, deprecated_member_use, use_build_context_synchronously
+
 import 'package:ecommerce_supabse/model/product_model.dart';
 import 'package:ecommerce_supabse/provider/category_provider.dart';
 import 'package:ecommerce_supabse/provider/product_provider.dart';

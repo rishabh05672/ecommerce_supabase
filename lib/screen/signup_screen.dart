@@ -8,67 +8,103 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
   @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Center(
+      backgroundColor: Colors.blue[50],
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0),
-          child: Card(
-            elevation: 8,
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: Form(
+          padding: EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              SizedBox(height: 50),
+              // Logo
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.white,
+                  size: 50,
+                ),
+              ),
+              SizedBox(height: 30),
+              Text(
+                'Create Admin Account',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[900],
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Setup your admin dashboard',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+              SizedBox(height: 40),
+
+              Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.person_add, size: 80, color: Colors.green),
-                    SizedBox(height: 16),
-                    Text(
-                      'Create Admin Account',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                    // Full Name Field
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true)
+                          return 'Please enter your name';
+                        if (value!.length < 2)
+                          return 'Name must be at least 2 characters';
+                        return null;
+                      },
                     ),
-                    SizedBox(height: 32),
+                    SizedBox(height: 20),
+
+                    // Email Field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Email Address',
                         prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                       validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter email';
-                        }
-                        if (!value!.contains('@')) {
+                        if (value?.isEmpty ?? true) return 'Please enter email';
+                        if (!value!.contains('@'))
                           return 'Please enter valid email';
-                        }
                         return null;
                       },
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 20),
+
+                    // Password Field
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -81,25 +117,27 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ? Icons.visibility
                                 : Icons.visibility_off,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                         ),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                       validator: (value) {
-                        if (value?.isEmpty ?? true) {
+                        if (value?.isEmpty ?? true)
                           return 'Please enter password';
-                        }
-                        if (value!.length < 6) {
+                        if (value!.length < 6)
                           return 'Password must be at least 6 characters';
-                        }
                         return null;
                       },
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 20),
+
+                    // Confirm Password Field
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
@@ -112,68 +150,69 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ? Icons.visibility
                                 : Icons.visibility_off,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
-                            });
-                          },
+                          onPressed: () => setState(
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
+                          ),
                         ),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                       validator: (value) {
-                        if (value?.isEmpty ?? true) {
+                        if (value?.isEmpty ?? true)
                           return 'Please confirm password';
-                        }
-                        if (value != _passwordController.text) {
+                        if (value != _passwordController.text)
                           return 'Passwords do not match';
-                        }
                         return null;
                       },
                     ),
-                    SizedBox(height: 24),
+                    SizedBox(height: 30),
+
+                    // Signup Button
                     Consumer<AuthProvider>(
                       builder: (context, authProvider, child) {
                         return Column(
                           children: [
                             if (authProvider.errorMessage != null)
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.all(12),
                                 margin: EdgeInsets.only(bottom: 16),
                                 decoration: BoxDecoration(
                                   color: Colors.red[100],
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   authProvider.errorMessage!,
-                                  style: TextStyle(color: Colors.red),
+                                  style: TextStyle(color: Colors.red[800]),
                                 ),
                               ),
-                            ElevatedButton(
-                              onPressed: authProvider.isLoading
-                                  ? null
-                                  : _handleSignUp,
-                              child: authProvider.isLoading
-                                  ? Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _handleSignup,
+                                child: authProvider.isLoading
+                                    ? CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : Text(
+                                        'Create Admin Account',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        SizedBox(width: 8),
-                                        Text('Creating Account...'),
-                                      ],
-                                    )
-                                  : Text('Create Account'),
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: Size(double.infinity, 50),
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                      ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               ),
                             ),
@@ -181,36 +220,54 @@ class _SignupScreenState extends State<SignupScreen> {
                         );
                       },
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 20),
+
+                    // Login Link
                     TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Already have an account? Login'),
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, '/login'),
+                      child: Text(
+                        "Already have an account? Sign In",
+                        style: TextStyle(color: Colors.blue[700], fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Future<void> _handleSignUp() async {
+  Future<void> _handleSignup() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      authProvider.clearError();
-
-      final success = await authProvider.signUp(
-        _emailController.text.trim(),
-        _passwordController.text,
+      final success = await context.read<AuthProvider>().signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        fullName: _nameController.text.trim(),
+        role: 'admin', // ← Important: Admin role set karo
       );
 
       if (success) {
         Navigator.pushReplacementNamed(context, '/dashboard');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Admin account created successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 }
